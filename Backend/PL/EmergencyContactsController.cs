@@ -34,7 +34,7 @@ namespace PL
                 return Unauthorized("Invalid token");
 
             await _serviceManager.EmergencyContactService.AddEmergencyContact(contact,userId);
-            return Ok();
+            return Ok("Added successfully");
         }
 
         [HttpPut("{id:int}")]
@@ -45,7 +45,7 @@ namespace PL
                 return Unauthorized("Invalid token");
 
             await _serviceManager.EmergencyContactService.UpdateEmergencyContact(id,contact, userId);
-            return Ok();
+            return Ok("Updated successfully");
         }
 
         [HttpDelete("{id:int}")]
@@ -55,7 +55,18 @@ namespace PL
                 return Unauthorized("Invalid token");
 
             await _serviceManager.EmergencyContactService.DeleteEmergencyContact(id, userId);
-            return Ok();
+            return Ok("Deleted successfully.");
+        }
+
+        [HttpPost("sos/{contactId:int}")]
+        public async Task<IActionResult> SendSOS(int contactId)
+        {
+            if (!TryGetUserId(out int userId))
+                return Unauthorized("Invalid token");
+
+            await _serviceManager.EmergencyContactService.SOS(contactId, userId);
+            return Ok("SOS sent successfully.");
+           
         }
 
         private bool TryGetUserId(out int userId)
@@ -63,6 +74,8 @@ namespace PL
             var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(claim, out userId);
         }
+
+
 
     }
 }

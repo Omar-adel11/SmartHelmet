@@ -14,5 +14,6 @@ namespace BLL.Abstractions.EmergencyContacts
         Task AddEmergencyContact(EmergencyContactDTO contact, int UserId);
         Task UpdateEmergencyContact(int ContactId,EmergencyContactDTO contact, int UserId);
         Task DeleteEmergencyContact(int ContactId, int UserId);
+        Task SOS(int ContactId, int UserId);
     }
 }

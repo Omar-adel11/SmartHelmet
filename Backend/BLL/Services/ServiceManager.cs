@@ -22,10 +22,11 @@ namespace BLL.Services
             IConfiguration _configuration,
             IEmailService _emailService,
             IUnitOfWork _unitOfWork
+
         ) : IServiceManager
     {
         public Abstractions.Authentication.IAuthenticationService AuthenticationService { get; } = new AuthService(_userManager, _configuration, _emailService);
 
-        public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork);
+        public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork, _emailService);
     }
 }

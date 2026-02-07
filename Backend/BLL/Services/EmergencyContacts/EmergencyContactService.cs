@@ -5,14 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using BLL.Abstractions;
 using BLL.Abstractions.EmergencyContacts;
+using BLL.Services.Helper.Email;
 using DAL.Users;
 using MailKit;
 using Microsoft.AspNetCore.Identity;
 using Shared.DTOs;
+using static System.Net.WebRequestMethods;
 
 namespace BLL.Services.EmergencyContacts
 {
-    public class EmergencyContactService(IUnitOfWork _unitOfWork) : IEmergencyContactService
+    public class EmergencyContactService(IUnitOfWork _unitOfWork, Helper.Email.IEmailService _emailService) : IEmergencyContactService
     {
         public async Task<IEnumerable<EmergencyContactDTO>> GetEmergencyContactsByUser(int UserId)
         {
@@ -75,7 +77,7 @@ namespace BLL.Services.EmergencyContacts
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task SOS(int ContactId, int UserId)
+        public async Task SOS(int ContactId, int UserId,string mssg)
         {
             var contacts = await GetEmergencyContactsByUser(UserId);
             var contact = contacts.FirstOrDefault(c => c.Id == ContactId);
@@ -83,6 +85,14 @@ namespace BLL.Services.EmergencyContacts
                 throw new Exception("Contact not found.");
 
             //Send SOS To Phone Number
+            var mail = new Email()
+            {
+                To = "o.adel1029@gmail.com", //simulation
+                Subject = "Emergency",
+                Body = $"{mssg}"
+            };
+
+            await _emailService.SendEmailAsync(mail);
         }
     }
 }
