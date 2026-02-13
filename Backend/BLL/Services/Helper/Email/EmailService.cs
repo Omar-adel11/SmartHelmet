@@ -46,7 +46,7 @@ namespace BLL.Services.Helper.Email
 
             catch (Exception ex)
             {
-                Console.WriteLine($"Email sending failed: {ex.Message}");
+                throw new Exception("The email service is temporarily unavailable. Please try again later.", ex);
             }
 
             await Task.CompletedTask;

@@ -8,9 +8,12 @@ namespace Shared.DTOs
 {
     public class ResetPasswordDTO
     {
-        public string Email { get; set; }
-        public string OTP { get; set; }
-        public string NewPassword { get; set; }
+        
+            public string Email { get; set; }
+            public string ResetSessionToken { get; set; }
+            public string NewPassword { get; set; }
+        
+
 
     }
 }

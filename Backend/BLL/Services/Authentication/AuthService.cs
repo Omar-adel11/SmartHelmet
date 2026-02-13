@@ -92,66 +92,74 @@ namespace BLL.Services.Authentication
             return "Check Your Email";
         }
 
-        public async Task<string> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO)
+        public async Task<string> VerifyOtpAsync(VerifyOtpDTO dto)
         {
-            var user = await _userManager.FindByEmailAsync(resetPasswordDTO.Email);
-            if (user == null) throw new Exception("Invalid request.");
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("Invalid request.");
 
-            // --- SECURITY FIX 3: Check for Lockout (Brute Force Protection) ---
             if (await _userManager.IsLockedOutAsync(user))
-            {
-                throw new Exception("Account is temporarily locked due to too many failed attempts. Try again later.");
-            }
+                throw new Exception("Account is temporarily locked. Try again later.");
 
-            // 1. Retrieve the stored token
             var tokenValue = await _userManager.GetAuthenticationTokenAsync(user, "Default", "ResetOTP");
-
             if (string.IsNullOrEmpty(tokenValue))
             {
-                await _userManager.AccessFailedAsync(user); // Count as failed attempt
+                await _userManager.AccessFailedAsync(user);
                 throw new Exception("Invalid or expired OTP.");
             }
 
-            // 2. Parse the token (OTP | Expiry)
             var parts = tokenValue.Split('|');
             var storedOtp = parts[0];
             var expiryString = parts[1];
 
-            // 3. Verify OTP Match
-            if (storedOtp != resetPasswordDTO.OTP)
+            if (storedOtp != dto.OTP)
             {
-                await _userManager.AccessFailedAsync(user); // Count as failed attempt
+                await _userManager.AccessFailedAsync(user);
                 throw new Exception("Invalid OTP.");
             }
 
-            // 4. Verify Expiration
             if (!DateTime.TryParseExact(expiryString, "o", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTime expiryDate))
-            {
                 throw new Exception("Error parsing token expiration.");
-            }
 
             if (DateTime.UtcNow > expiryDate)
-            {
                 throw new Exception("OTP has expired. Please request a new one.");
-            }
 
-            // 5. Success! Generate the REAL Identity Token
+            // ✅ OTP is valid → generate a short-lived reset token (or flag)
+            var resetSessionToken = Guid.NewGuid().ToString();
+
+            // Store it temporarily (example: as another auth token)
+            await _userManager.SetAuthenticationTokenAsync(user, "Default", "ResetSession", resetSessionToken);
+
+            // Optional: clear failed attempts
+            await _userManager.ResetAccessFailedCountAsync(user);
+
+            return resetSessionToken; // Frontend will use this to open reset password page
+        }
+
+        public async Task<string> ResetPasswordAfterOtpAsync(ResetPasswordDTO dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("Invalid request.");
+
+            var sessionToken = await _userManager.GetAuthenticationTokenAsync(user, "Default", "ResetSession");
+            if (string.IsNullOrEmpty(sessionToken) || sessionToken != dto.ResetSessionToken)
+                throw new Exception("Unauthorized or expired reset session.");
+
+            // Generate real Identity reset token
             var realToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            // 6. Perform the actual password reset
-            var result = await _userManager.ResetPasswordAsync(user, realToken, resetPasswordDTO.NewPassword);
-
+            var result = await _userManager.ResetPasswordAsync(user, realToken, dto.NewPassword);
             if (!result.Succeeded)
-            {
-                throw new Exception("Password reset failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-            }
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-            // 7. Cleanup & Unlock
-            await _userManager.RemoveAuthenticationTokenAsync(user, "Default", "ResetOTP"); // Burn the OTP
-            await _userManager.ResetAccessFailedCountAsync(user); // Clear any previous failed attempts
+            // Cleanup: burn both tokens
+            await _userManager.RemoveAuthenticationTokenAsync(user, "Default", "ResetOTP");
+            await _userManager.RemoveAuthenticationTokenAsync(user, "Default", "ResetSession");
 
             return "Password has been reset successfully.";
         }
+
 
         public async Task<UserResponseDTO> GetCurrentUserAsync(string Email)
         {

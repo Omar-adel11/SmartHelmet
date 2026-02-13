@@ -59,12 +59,12 @@ namespace PL
         }
 
         [HttpPost("sos/{contactId:int}")]
-        public async Task<IActionResult> SendSOS(int contactId)
+        public async Task<IActionResult> SendSOS(int contactId,string mssg)
         {
             if (!TryGetUserId(out int userId))
                 return Unauthorized("Invalid token");
 
-            await _serviceManager.EmergencyContactService.SOS(contactId, userId);
+            await _serviceManager.EmergencyContactService.SOS(contactId, userId,mssg);
             return Ok("SOS sent successfully.");
            
         }

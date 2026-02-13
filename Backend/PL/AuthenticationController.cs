@@ -34,12 +34,23 @@ namespace PL
             return Ok(result);
 
         }
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO request)
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDTO request)
         {
-            var result = await _serviceManager.AuthenticationService.ResetPasswordAsync(request);
+            var token = await _serviceManager.AuthenticationService.VerifyOtpAsync(request);
+            return Ok(new { resetSessionToken = token });
+        }
+
+
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPasswordAfterOtp([FromBody] ResetPasswordDTO request)
+        {
+            var result = await _serviceManager.AuthenticationService.ResetPasswordAfterOtpAsync(request);
             return Ok(result);
         }
+
         [HttpGet("current-user")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()

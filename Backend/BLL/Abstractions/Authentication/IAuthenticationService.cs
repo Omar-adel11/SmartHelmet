@@ -12,7 +12,9 @@ namespace BLL.Abstractions.Authentication
         Task<string> ForgetPasswordAsync(string Email);
         Task<string> LoginAsync(LoginDTO loginDTO);
         Task<UserDTO> RegisterAsync(RegisterDTO registerDTO);
-        Task<string> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);
+
+        Task<string> ResetPasswordAfterOtpAsync(ResetPasswordDTO dto);
+        Task<string> VerifyOtpAsync(VerifyOtpDTO dto);
 
         Task<UserResponseDTO> GetCurrentUserAsync(string Email);
     }
