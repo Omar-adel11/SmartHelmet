@@ -36,8 +36,15 @@ namespace DAL.Users.Data
                 .WithMany(au => au.EmergencyContacts)
                 .HasForeignKey(ec => ec.AppUserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Ride>()
+                .HasOne(r => r.AppUser)
+                .WithMany() // You can add ICollection<Ride> to AppUser if needed
+                .HasForeignKey(r => r.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<EmergencyContact> EmergencyContacts { get; set; }
+        public DbSet<Ride> Rides { get; set; }
     }
 }

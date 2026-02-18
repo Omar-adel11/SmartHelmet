@@ -13,6 +13,7 @@ namespace BLL.Abstractions
     {
         IAuthenticationService AuthenticationService { get; }
         IEmergencyContactService EmergencyContactService { get; }
-        
+        IRideService RideService { get; }
+
     }
 }

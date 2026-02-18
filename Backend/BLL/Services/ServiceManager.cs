@@ -9,6 +9,7 @@ using BLL.Abstractions.EmergencyContacts;
 using BLL.Services.Authentication;
 using BLL.Services.EmergencyContacts;
 using BLL.Services.Helper.Email;
+using BLL.Services.Rides;
 using DAL.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -28,5 +29,6 @@ namespace BLL.Services
         public Abstractions.Authentication.IAuthenticationService AuthenticationService { get; } = new AuthService(_userManager, _configuration, _emailService);
 
         public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork, _emailService);
+        public IRideService RideService { get; } = new RideService(_unitOfWork);
     }
 }

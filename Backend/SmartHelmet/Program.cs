@@ -4,6 +4,7 @@ using BLL.Abstractions;
 using BLL.Services;
 using BLL.Services.Helper;
 using BLL.Services.Helper.Email;
+using BLL.Services.Rides;
 using DAL.Users;
 using DAL.Users.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -65,11 +66,15 @@ namespace SmartHelmet
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWTOptions"));
             builder.Services.AddScoped<IEmailService, EmailService>();
 
+
             //DI for UnitOfWork
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             //DI for serviceManager
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
+
+            //Ride services
+            builder.Services.AddScoped<IRideService, RideService>();
 
             var app = builder.Build();
 
