@@ -15,6 +15,7 @@ namespace DAL.Users
         public int? Age { get; set; }
         public decimal? Weight { get; set; }
         public string?  BloodType { get; set; }
+        public string? ChronicConditions { get; set; }
         public ICollection<EmergencyContact>? EmergencyContacts { get; set; }
     }
 }
