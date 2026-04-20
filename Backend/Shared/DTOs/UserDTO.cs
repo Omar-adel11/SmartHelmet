@@ -12,5 +12,6 @@ namespace Shared.DTOs
         public string Email { get; set; }
         public string Token { get; set; }
         public string Phone { get; set; }
+        public string? PictureUrl { get; set; }
     }
 }

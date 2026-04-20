@@ -12,6 +12,7 @@ using BLL.Services.Helper.Email;
 using BLL.Services.Rides;
 using DAL.Users;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -22,11 +23,11 @@ namespace BLL.Services
             UserManager<AppUser> _userManager,
             IConfiguration _configuration,
             IEmailService _emailService,
-            IUnitOfWork _unitOfWork
-
+            IUnitOfWork _unitOfWork,
+            IWebHostEnvironment _webHostEnvironment
         ) : IServiceManager
     {
-        public Abstractions.Authentication.IAuthenticationService AuthenticationService { get; } = new AuthService(_userManager, _configuration, _emailService);
+        public Abstractions.Authentication.IAuthenticationService AuthenticationService { get; } = new AuthService(_userManager, _configuration, _emailService, _webHostEnvironment);
 
         public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork, _emailService);
         public IRideService RideService { get; } = new RideService(_unitOfWork);

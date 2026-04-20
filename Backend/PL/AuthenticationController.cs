@@ -59,5 +59,47 @@ namespace PL
             var result = await _serviceManager.AuthenticationService.GetCurrentUserAsync(email);
             return Ok(result);
         }
+
+        //change password
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangeUserPassword([FromBody] ChangePasswordDTO dto)
+        {
+            var emailClaim = User.FindFirst(ClaimTypes.Email);
+            if (emailClaim == null)
+                return Unauthorized("Email claim not found in token.");
+
+            dto.Email = emailClaim.Value;
+
+            try
+            {
+                var result = await _serviceManager.AuthenticationService.ChangeUserPasswordAsync(dto);
+                return Ok(new { message = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //update user info
+        [HttpPost("update-user-info")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserInfo([FromForm] UpdateUserDTO dto)
+        {
+            var emailClaim = User.FindFirst(ClaimTypes.Email);
+            if (emailClaim == null)
+                return Unauthorized("Email claim not found in token.");
+            dto.Email = emailClaim.Value;
+            try
+            {
+                var result = await _serviceManager.AuthenticationService.UpdateUserInfoAsync(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

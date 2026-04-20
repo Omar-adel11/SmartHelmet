@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Shared.DTOs
 {
@@ -12,5 +13,7 @@ namespace Shared.DTOs
         public string Email { get; set; }
         public string Password { get; set; }
         public string Phone { get; set; }
+        public IFormFile? file { get; set; }
+
     }
 }

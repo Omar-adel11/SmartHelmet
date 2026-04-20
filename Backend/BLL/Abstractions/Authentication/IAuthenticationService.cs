@@ -17,5 +17,8 @@ namespace BLL.Abstractions.Authentication
         Task<string> VerifyOtpAsync(VerifyOtpDTO dto);
 
         Task<UserResponseDTO> GetCurrentUserAsync(string Email);
+        Task<string> ChangeUserPasswordAsync(ChangePasswordDTO dto);
+        Task<string> UpdateUserInfoAsync(UpdateUserDTO dto);
+        
     }
 }

@@ -11,6 +11,7 @@ using BLL.Abstractions.Authentication;
 using BLL.Services.Helper;
 using BLL.Services.Helper.Email;
 using DAL.Users;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,9 @@ using Shared.DTOs;
 
 namespace BLL.Services.Authentication
 {
-    public class AuthService(UserManager<AppUser> _userManager,IConfiguration _configuration,Helper.Email.IEmailService _emailService) : IAuthenticationService
+    public class AuthService(UserManager<AppUser> _userManager,IConfiguration _configuration,
+        Helper.Email.IEmailService _emailService,
+        IWebHostEnvironment environment) : IAuthenticationService
     {
 
         public async Task<string> LoginAsync(LoginDTO loginDTO)
@@ -50,6 +53,11 @@ namespace BLL.Services.Authentication
                 PhoneNumber = registerDTO.Phone
             };
 
+            if(registerDTO.file is not null)
+            {
+                user.PictureURL =  Helper.DocumentSettings.UploadFile(registerDTO.file,environment.WebRootPath, "images");
+            }
+
             var result = await _userManager.CreateAsync(user, registerDTO.Password);
             if (!result.Succeeded)
             {
@@ -63,7 +71,8 @@ namespace BLL.Services.Authentication
                 FullName = user.FullName,
                 Email = user.Email,
                 Token = token,
-                Phone = user.PhoneNumber
+                Phone = user.PhoneNumber,
+                PictureUrl = user.PictureURL
             };
         }
 
@@ -182,7 +191,46 @@ namespace BLL.Services.Authentication
 
         }
 
+        //change password
+        public async Task<string> ChangeUserPasswordAsync(ChangePasswordDTO dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("User not found.");
+            var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+            if (!result.Succeeded)
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            return "Password changed successfully.";
+        }
+        //update user info
+        public async Task<string> UpdateUserInfoAsync(UpdateUserDTO dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                throw new Exception("User not found.");
+            user.FullName = dto.FullName ?? user.FullName;
+            user.PhoneNumber = dto.PhoneNumber ?? user.PhoneNumber;
+            user.Age = dto.Age ?? user.Age;
+            user.Weight = dto.Weight ?? user.Weight;
+            user.BloodType = dto.BloodType ?? user.BloodType;
+            user.ChronicConditions = dto.ChronicConditions ?? user.ChronicConditions;
+            user.Gender = dto.Gender ?? user.Gender;
+            user.Email = dto.Email ?? user.Email;
+            if(dto.file is not null)
+            {
+                if(user.PictureURL is not null)
+                {
+                    Helper.DocumentSettings.DeleteFile(user.PictureURL, environment.WebRootPath,"images");
+                }
+                user.PictureURL = Helper.DocumentSettings.UploadFile(dto.file, environment.WebRootPath, "images");
+            }
 
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            return "User information updated successfully.";
+
+        }
         private async Task<string> GenerateTokenAsync(AppUser user)
         {
             var claims = new List<Claim>
