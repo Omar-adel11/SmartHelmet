@@ -29,7 +29,7 @@ namespace BLL.Services
     {
         public Abstractions.Authentication.IAuthenticationService AuthenticationService { get; } = new AuthService(_userManager, _configuration, _emailService, _webHostEnvironment);
 
-        public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork, _emailService);
+        public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork, _emailService, _webHostEnvironment);
         public IRideService RideService { get; } = new RideService(_unitOfWork);
     }
 }

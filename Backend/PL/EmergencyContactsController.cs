@@ -28,7 +28,7 @@ namespace PL
             return Ok(contacts);
         }
         [HttpPost]
-        public async Task<IActionResult> AddEmergencyContact([FromBody] EmergencyContactDTO contact)
+        public async Task<IActionResult> AddEmergencyContact([FromForm] EmergencyContactDTO contact)
         {
             if (!TryGetUserId(out int userId))
                 return Unauthorized("Invalid token");
@@ -38,7 +38,7 @@ namespace PL
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateEmergencyContact(int id, [FromBody] EmergencyContactDTO contact)
+        public async Task<IActionResult> UpdateEmergencyContact(int id, [FromForm] EmergencyContactDTO contact)
         {
 
             if (!TryGetUserId(out int userId))
