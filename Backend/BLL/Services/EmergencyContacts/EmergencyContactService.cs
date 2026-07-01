@@ -19,10 +19,14 @@ using static System.Net.WebRequestMethods;
 
 namespace BLL.Services.EmergencyContacts
 {
+<<<<<<< HEAD
     public class EmergencyContactService(IUnitOfWork _unitOfWork,
         Helper.Email.IEmailService _emailService,
         IWebHostEnvironment _environment,
         IConfiguration _configuration) : IEmergencyContactService
+=======
+    public class EmergencyContactService(IUnitOfWork _unitOfWork, Helper.Email.IEmailService _emailService, IWebHostEnvironment _environment) : IEmergencyContactService
+>>>>>>> afefcdecc269f1d642f668a131adb4860ed2e941
     {
         public async Task<IEnumerable<EmergencyContactDTO>> GetEmergencyContactsByUser(int UserId)
         {
