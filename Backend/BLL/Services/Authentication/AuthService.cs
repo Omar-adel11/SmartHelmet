@@ -13,6 +13,7 @@ using BLL.Services.Helper.Email;
 using DAL.Users;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using NETCore.MailKit.Core;
@@ -38,12 +39,12 @@ namespace BLL.Services.Authentication
                 throw new Exception("Invalid email or password.");
             }
 
-            var token = await GenerateTokenAsync(user);
+            var token = await GenerateTokenAsync(user, loginDTO.RememberMe);
             return token;
 
         }
 
-        public async Task<UserDTO> RegisterAsync(RegisterDTO registerDTO)
+        public async Task<UserDTO> RegisterAsync([FromForm]RegisterDTO registerDTO)
         {
             var user = new AppUser()
             {
@@ -205,6 +206,7 @@ namespace BLL.Services.Authentication
         //update user info
         public async Task<string> UpdateUserInfoAsync(UpdateUserDTO dto)
         {
+            
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)
                 throw new Exception("User not found.");
@@ -215,7 +217,6 @@ namespace BLL.Services.Authentication
             user.BloodType = dto.BloodType ?? user.BloodType;
             user.ChronicConditions = dto.ChronicConditions ?? user.ChronicConditions;
             user.Gender = dto.Gender ?? user.Gender;
-            user.Email = dto.Email ?? user.Email;
             if(dto.file is not null)
             {
                 if(user.PictureURL is not null)
@@ -224,14 +225,13 @@ namespace BLL.Services.Authentication
                 }
                 user.PictureURL = Helper.DocumentSettings.UploadFile(dto.file, environment.WebRootPath, "images");
             }
-
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
             return "User information updated successfully.";
 
         }
-        private async Task<string> GenerateTokenAsync(AppUser user)
+        private async Task<string> GenerateTokenAsync(AppUser user, bool rememberMe = false)
         {
             var claims = new List<Claim>
             {
@@ -254,7 +254,7 @@ namespace BLL.Services.Authentication
                 issuer: jwtOptions.Issuer,
                 audience: jwtOptions.Audience,
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: rememberMe ? DateTime.Now.AddDays(30) : DateTime.Now.AddHours(1),
                 signingCredentials: new SigningCredentials
                 (
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),

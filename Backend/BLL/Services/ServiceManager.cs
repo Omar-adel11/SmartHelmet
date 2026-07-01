@@ -25,11 +25,12 @@ namespace BLL.Services
             IEmailService _emailService,
             IUnitOfWork _unitOfWork,
             IWebHostEnvironment _webHostEnvironment
+            
         ) : IServiceManager
     {
         public Abstractions.Authentication.IAuthenticationService AuthenticationService { get; } = new AuthService(_userManager, _configuration, _emailService, _webHostEnvironment);
 
-        public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork, _emailService);
+        public IEmergencyContactService EmergencyContactService{ get; } = new EmergencyContactService(_unitOfWork, _emailService, _webHostEnvironment,_configuration);
         public IRideService RideService { get; } = new RideService(_unitOfWork);
     }
 }

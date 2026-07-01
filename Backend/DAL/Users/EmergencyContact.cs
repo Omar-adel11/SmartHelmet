@@ -10,6 +10,7 @@ namespace DAL.Users
     {
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
+        public string? PictureURL { get; set; } // Added property
         public AppUser AppUser { get; set; }
         public int AppUserId { get; set; } //FK
     }
